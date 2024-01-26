@@ -1,7 +1,18 @@
+import os
+from dotenv import load_dotenv
 import streamlit as st
 from langchain.prompts import PromptTemplate
 from langchain.llms import CTransformers
 import logging
+
+# Use a pipeline as a high-level helper
+from transformers import pipeline
+
+# Load model directly
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configure logging for debugging
 logging.basicConfig(
@@ -13,13 +24,22 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Define all the API keys
+
+hf_api_token = os.environ.get("HUGGINGFACEHUB_API_TOKEN")
+
+pipe = pipeline("text-generation", model="meta-llama/Llama-2-7b-hf", token=hf_api_token)
+
 ## Function To get response from LLAma 2 model
+
+tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf")
 
 
 def getLLamaresponse(input_text, no_words, blog_style):
     ### LLama2 model
     llm = CTransformers(
-        model="models/llama-2-7b-chat.ggmlv3.q8_0.bin",
+        # Load model directly
+        model=AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-7b-hf"),
         model_type="llama",
         config={"max_new_tokens": 256, "temperature": 0.01},
     )
